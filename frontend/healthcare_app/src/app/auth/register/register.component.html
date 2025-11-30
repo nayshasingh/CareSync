@@ -1,0 +1,104 @@
+<div class="register container">
+    <div class="register-container">
+        <div class="register-img">
+            <img src="/register.png" alt="register-logo">
+        </div>
+        <form [formGroup]="form" (ngSubmit)="onSubmit()">
+            <h1>Sign up</h1>
+            <div class="form-control">
+                <mat-form-field>
+                    <mat-label>Name</mat-label>
+                    <input matInput type="name" formControlName="name">
+                </mat-form-field>
+                @if(isNameInvalid){
+                    <p class="form-control-error">Name is invalid</p>
+                }
+            </div>
+            <div class="form-control">
+                <mat-form-field>
+                    <mat-label>Email</mat-label>
+                    <input matInput type="email" formControlName="email">
+                </mat-form-field>
+                @if(isEmailInvalid){
+                    <p class="form-control-error">Email is invalid</p>
+                }
+            </div>
+            <div class="form-control">
+                <mat-form-field>
+                    <mat-label>Password</mat-label>
+                    <input matInput formControlName="password" [type]="hidePassword() ? 'password' : 'text'"/>
+                    <button
+                        type="button"
+                        class="password-input-btn"
+                        mat-icon-button
+                        matSuffix
+                        (click)="togglePasswordShow($event)"
+                        [attr.aria-label]="'Hide password'"
+                        [attr.aria-pressed]="hidePassword()"
+                        >
+                        <mat-icon>{{hidePassword() ? 'visibility_off' : 'visibility'}}</mat-icon>
+                    </button>
+                </mat-form-field>
+                @if(isPasswordInvalid){
+                    <p class="form-control-error">Password must be 8-20 characters long and include at least one letter, one number, and one special character</p>
+                }
+            </div>
+
+            <div class="form-control">
+                <mat-form-field>
+                    <mat-label>Confirm Password</mat-label>
+                    <input matInput formControlName="confirm_password" [type]="confirmHidePassword() ? 'password' : 'text'"/>
+                    <button
+                        type="button"
+                        class="password-input-btn"
+                        mat-icon-button
+                        matSuffix
+                        (click)="toggleConfirmPasswordShow($event)"
+                        [attr.aria-label]="'Hide password'"
+                        [attr.aria-pressed]="confirmHidePassword()"
+                        >
+                        <mat-icon>{{confirmHidePassword() ? 'visibility_off' : 'visibility'}}</mat-icon>
+                    </button>
+                </mat-form-field>
+                @if(isConfirmPasswordInvalid){
+                    <p class="form-control-error">Password doesn't match</p>
+                }
+            </div>
+    
+            <div class="form-control">
+                <mat-form-field>
+                    <mat-label>Role</mat-label>
+                    <mat-select matNativeControl formControlName="role">
+                      <mat-option value="PATIENT">Patient</mat-option>
+                      <mat-option value="DOCTOR">Doctor</mat-option>
+                    </mat-select>
+                </mat-form-field>
+                @if(isRoleInvalid){
+                    <p class="form-control-error">Role is invalid</p>
+                }
+            </div>
+    
+            <div class="form-control">
+                <mat-form-field>
+                    <mat-label>Phone</mat-label>
+                    <input matInput type="number" formControlName="phone"/>
+                </mat-form-field>
+                @if(isPhoneInvalid){
+                    <p class="form-control-error">Phone number is invalid</p>
+                }
+            </div>    
+            <button type="submit" class="btn btn-login btn-arrow">
+                Register
+                @if(!isLoading()){
+                    <i class="fa-solid fa-arrow-right"></i>
+                }
+                @else{
+                    <mat-progress-spinner mode="indeterminate" diameter="15"></mat-progress-spinner>
+                }
+            </button>
+            <div class="login-now">
+                Already have an account? <a routerLink = "../login" id="a-login-now" class="a-link">Login</a>
+            </div>
+        </form>
+    </div>
+</div>

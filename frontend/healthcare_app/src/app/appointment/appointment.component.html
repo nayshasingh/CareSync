@@ -1,0 +1,61 @@
+<div class="appointment">
+    <div class="appointment-details" [class]="{
+        'a-cancelled': appointment().status === 'CANCELLED',
+        'a-completed': appointment().status === 'COMPLETED',
+        'a-booked': appointment().status === 'BOOKED'
+    }">
+        <p>{{appointment().appointmentId}}</p>
+        @if(userRole() === 'DOCTOR'){
+            @if(appointment().patient){
+                <a [routerLink]="['../', appointment().patient!.userId]" routerLinkActive="router-link-active" >{{appointment().patient!.name | titlecase}}</a>
+            }@else {
+                <p class="disabled">UNAVAILABLE</p>
+            }
+        }@else if(userRole() === 'PATIENT'){
+            @if(appointment().doctor){
+                <a [routerLink]="['../', appointment().doctor!.userId]" routerLinkActive="router-link-active" >{{appointment().doctor!.name | titlecase}}</a>
+            }@else{
+                <p class="disabled">UNAVAILABLE</p>
+            }
+        }
+        <div class="startTime">{{appointment().timeSlotStart | date: 'short'}}</div>
+        <p><i class="fa-solid fa-arrow-right"></i></p>
+        <div class="endTime">{{appointment().timeSlotEnd | date: 'short'}}</div>
+        @if(appointment().status === 'CANCELLED'){
+            <div class="status cancelled">{{appointment().status}}</div>
+        }@else if(appointment().status === 'BOOKED'){
+            <div class="status booked">{{appointment().status}}</div>
+        }@else if(appointment().status === 'COMPLETED'){
+            <div class="status completed">{{appointment().status}}</div>
+        }
+
+        @if(isYou()){
+            <button class="btn btn-cancel" (click)="onCancelAppointment()" [disabled]="appointment().status !== 'BOOKED'">
+                Cancel
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            <!-- Only DOCTOR has the access to COMPLETE button -->
+            @if(userRole() === 'DOCTOR'){
+                <button class="btn btn-complete" (click)="onCompleteAppointment()" [disabled]="appointment().status !== 'BOOKED'">
+                    Complete
+                    <i class="fa-solid fa-check"></i>
+                </button>
+            }
+            @if(!showConsultation()){
+                <button class="btn btn-consultation" (click)="toggleConsultation()">
+                    <i class="fa-solid fa-eye"></i> consultation
+                </button>
+            }@else {
+                <button class="btn btn-consultation" (click)="toggleConsultation()">
+                    <i class="fa-solid fa-eye-slash"></i> consultation
+                </button>
+
+            }
+        }
+    </div>
+    <div class="consultations">
+        @if(showConsultation()){
+            <app-consultation [appointmentId]="appointment().appointmentId" (delete)="toggleConsultation()" [status]="appointment().status"/>
+        }
+    </div>
+</div>

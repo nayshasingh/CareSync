@@ -1,0 +1,99 @@
+div.show-case{
+    margin-top: 1rem;
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+h1{
+    text-align: center;
+    margin-left: 10%;
+    margin-right:10%
+}
+
+div.show{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-width: 150px;
+    align-items: center;
+    background-color: rgb(209, 232, 252);
+    border: 1px solid rgba(0, 0, 0, 0.315);
+    border-radius: 5px;
+    padding: 0.85rem;
+    box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;
+    transition: all 0.2s ease-in-out;
+}
+
+span.value{
+    font-weight: 500;
+    font-size: 3rem;
+}
+
+span.title{
+    font-weight: 500;
+}
+
+div.show:hover{
+    cursor: pointer;
+    transform: scale(1.05);
+}
+
+div.image-container{
+    margin-top: 1rem;
+    width: 400px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    animation: home_img 0.65s ease-in-out infinite alternate backwards;
+}
+
+@keyframes home_img {
+    from{
+        transform: scale(1.01);
+    }to{
+        transform: scale(0.99);
+    }
+}
+
+img#logo-banner{
+    width: 100%;
+}
+
+@media (max-width: 768px) {
+
+    h1{
+        font-size: 1.5rem;
+        text-align: center;
+    }
+
+
+    div.show-case {
+        flex-direction: column;
+        align-items: center;
+        gap:1rem;
+    }
+
+    div.show{
+        width: 75vw;
+        text-align: center;
+    }
+    
+    div.image-container {
+        width: 70vw;
+    }
+
+    span.value {
+        font-size: 2rem;
+    }
+}
+
+@media (max-width: 480px) {
+    div.show {
+        padding: 0.5rem;
+    }
+
+    span.value {
+        font-size: 1.5rem;
+    }
+}

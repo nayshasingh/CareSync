@@ -1,0 +1,67 @@
+div.consultation{
+    display: flex;
+    padding: 1rem;
+    width: 450px;
+    margin-top: 0.5rem;
+    outline: 1px solid rgba(5, 0, 0, 0.242);
+    background-color: rgba(246, 233, 217, 0.196);
+    border-radius: 5px;
+    flex-direction: column;
+    height: 100%;
+    gap: 0.75rem;
+    justify-content: center;
+}
+
+div.consultation h2{
+    text-align: center;
+}
+
+p.form-control-error{
+    margin: 0;
+    color: red;
+    font-size: 0.8rem;
+    position: relative;
+    bottom: 10px;
+}
+
+div.form-control{
+    position: relative;
+}
+
+div.no-consultation{
+    display: flex;
+    gap: 0.5rem;
+    flex-direction: column;
+    align-items: center;
+}
+form.consultation-form{
+    display: flex;
+    width: 100%;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+
+div.show-consultation h3.h-consultation{
+    margin-top: 0.5rem;
+}
+div.show-consultation p.p-consultation{
+    margin-top: 0.25rem;
+}
+div.notes h3.h-consultation{
+    margin-top: 0;
+}
+
+form.consultation-form div.form-control mat-form-field{
+    width: 96.2% !important;
+}
+div.btn-grp{
+    display: flex;
+    justify-content: space-between;
+}
+
+@media (max-width: 512px) {
+    div.consultation{
+        width: 80vw;
+    }
+}

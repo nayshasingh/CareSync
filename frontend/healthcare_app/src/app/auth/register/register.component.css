@@ -1,0 +1,103 @@
+div.register-container{
+    display: flex;
+    flex-direction: row;
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+    padding: 1rem;
+    outline: 1px solid rgba(44, 44, 44, 0.269);
+    border-radius: 5px;
+    background-color: aliceblue;
+    justify-content: space-around;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+div.register form{
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+    background-color: white;
+    display: flex;
+    flex-direction: column;
+    width: 450px;
+    border-radius: 10px;
+    border: 1px solid rgba(0, 0, 0, 0.164);
+    justify-content: center;
+    align-items: center;
+    padding: 1rem;
+    position: relative;
+}
+
+div.register form h1{
+    margin-bottom: 1rem;
+}
+
+p.form-control-error{
+    margin: 0;
+    width: 400px;
+    font-size: 0.8rem;
+    color: red;
+    text-align: justify;
+    position: relative;
+    bottom: 10px;
+}
+
+div.form-control{
+    position: relative;
+}
+
+div.register-img{
+    width: 42%;
+}
+
+div.register-img img{
+    width: 100%;
+}
+
+div.register form button{
+    margin-bottom: 0.5rem;
+}
+
+div.login-now{
+    font-size: 0.9rem;
+    position: relative;
+    margin-top: 0.85rem;
+}
+
+@media (max-width: 768px) {
+    div.register-container {
+        box-sizing: border-box;
+        margin-top: 1rem;
+        margin-bottom: 1rem;
+        width: 90vw;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    div.register form {
+        width: 80vw;
+        padding: 0.75rem;
+    }
+
+    div.register-img {
+        width: 70%;
+    }
+}
+
+@media (max-width: 480px) {
+    div.register form {
+        width: 80vw;
+        padding: 0.5rem;
+    }
+
+    div.register form h1 {
+        font-size: 1.5rem;
+    }
+
+    div.register-img {
+        width: 75%;
+    }
+
+    div.register-container {
+        padding: 0.5rem;
+    }
+}

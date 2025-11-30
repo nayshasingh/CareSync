@@ -1,0 +1,68 @@
+<div class="availability" [class]="{
+    'available': availability().available,
+    'unavailable': !availability().available}">
+
+    @if(!isEditing()){
+        <div class="top-availability">
+        <a [routerLink]="['../users/', availability().doctor.userId]" routerLinkActive="router-link-active" >{{availability().doctor.name | titlecase}}</a>
+        <p>{{availability().timeSlotStart | date:'short'}}</p>
+        <span><i class="fa-solid fa-arrow-right"></i></span>
+        <p>{{availability().timeSlotEnd | date:'short'}}</p>
+    </div>
+    <div class="bottom-availability">
+        @if(availability().available){
+            <p class="available">AVAILABLE</p>
+        }@else {
+            <p class="unavailable">UNAVAILABLE</p>
+        }
+        @if(userRole() === 'PATIENT'){
+            <button class="btn btn-book btn-arrow" (click)="onBook()" [disabled]="!availability().available">
+                Book
+                <i class="fa-solid fa-arrow-right"></i>
+            </button>
+        }@else if(userRole() === 'DOCTOR') {
+            <button class="btn btn-edit-availability" (click)="onEditClick()">
+                Edit
+                <i class="fa-solid fa-pen"></i>
+            </button>
+            <button class="btn btn-delete-availability" (click)="onDeleteAvailability()">
+                Delete
+                <i class="fa-solid fa-trash"></i>
+            </button>
+        }
+        </div>
+    }
+    @else {
+        <div class="top-edit-availability">
+            <p>{{availability().availabilityId}}</p>
+            <p>{{availability().doctor.name}}</p>
+        </div>
+  
+        <form id="edit-availability" class="mid-edit-availability" [formGroup]="editForm">
+            <div class="slot time-slot-start">
+                <label for="editSlotStart">From</label>
+                <input type="datetime-local" class="timeSlot" id="editSlotStart" name="editSlotStart" formControlName="timeSlotStart" [class.error-control]="slotStartInvalid">
+            </div>
+            <div class="slot time-slot-end">
+                <label for="editSlotEnd"><i class="fa-solid fa-arrow-right"></i></label>
+                <input type="datetime-local" class="timeSlot" id="editSlotEnd" name="editSlotEnd" formControlName="timeSlotEnd" [class.error-control]="slotEndInvalid">
+            </div>
+        </form>
+
+        <div class="bottom-edit-availability">
+            @if(availability().available){
+                <p class="available">AVAILABLE</p>
+            }@else {
+                <p class="unavailable">UNAVAILABLE</p>
+            }
+            <button class="btn btn-arrow" type="submit" (click)="onEditSubmit()">
+                Submit
+                <i class="fa-solid fa-arrow-right"></i>
+            </button>
+            <button class="btn" (click)="onEditCancel()">
+                Cancel
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+    }
+</div>

@@ -1,0 +1,57 @@
+<div class="login container">
+    <div class="login-container">
+        <div class="login-img">
+            <img src="/login.png" alt="logo-login">
+        </div>
+        <form [formGroup]="form" (ngSubmit)="onSubmit()">
+            <h1 id="h1-login">Login</h1>
+            <div class="form-control">
+                <mat-form-field>
+                    <mat-label>Email</mat-label>
+                    <input matInput type="email" formControlName="email">
+                </mat-form-field>
+                @if(isEmailInvalid){
+                    <p class="form-control-error">Invalid email</p>
+                }
+            </div>
+    
+            <div class="form-control">
+                <mat-form-field>
+                    <mat-label>Password</mat-label>
+                    <input matInput formControlName="password" [type]="hide() ? 'password' : 'text'"/>
+                    <button
+                        type="button"
+                        class="password-input-btn"
+                        mat-icon-button
+                        matSuffix
+                        (click)="togglePasswordShow($event)"
+                        [attr.aria-label]="'Hide password'"
+                        [attr.aria-pressed]="hide()"
+                        >
+                        <mat-icon>{{hide() ? 'visibility_off' : 'visibility'}}</mat-icon>
+                    </button>
+                </mat-form-field>
+                @if(isPasswordInvalid){
+                    <p class="form-control-error">Invalid password</p>
+                }
+            </div>
+
+            <div class="forgot-password">
+                <a routerLink = "../forgot-password" id="a-forgot-password" class="a-link">Forgot password?</a>
+            </div>
+    
+            <button type="submit" class="btn btn-login btn-arrow" [disabled]="isLoading()">
+                Submit
+                @if(!isLoading()){
+                    <i class="fa-solid fa-arrow-right"></i>
+                }
+                @else{
+                    <mat-progress-spinner mode="indeterminate" diameter="15"></mat-progress-spinner>
+                }
+            </button>
+            <div class="new-account">
+                Don't have an account? <a routerLink = "../register" id="a-new-account" class="a-link">Register</a>
+            </div>
+        </form>
+    </div>
+</div>

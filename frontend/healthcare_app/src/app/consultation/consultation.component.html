@@ -1,0 +1,106 @@
+<div class="consultation">
+    @if(consultation()){
+        <h2>Consultation</h2>
+        @if(editable()){
+            <form class="consultation-form" [formGroup]="editConsultationForm">
+                <div class="form-control">
+                    <mat-form-field appearance="outline">
+                        <mat-label>Notes</mat-label>
+                        <textarea matInput formControlName="notes"></textarea>
+                    </mat-form-field>
+                    @if(isEditedNotesValid){
+                        <p class="form-control-error">Notes can only contain 5-500 characters</p>
+                    }
+                </div>
+                <div class="form-control">
+                    <mat-form-field appearance="outline">
+                        <mat-label>Prescription</mat-label>
+                        <textarea matInput formControlName="prescription"></textarea>
+                    </mat-form-field>
+                    @if(isEditedPrescriptionValid){
+                        <p class="form-control-error">Prescription can only contain 5-1000 characters</p>
+                    }
+                </div>
+            </form>
+        }@else{
+            <div class="show-consultation">
+                <div class="notes">
+                    <h3 class="h-consultation">Notes</h3>
+                    <p class="p-consultation">{{consultation()!.notes}}</p>
+                </div>
+                <div class="prescription">
+                    <h3 class="h-consultation">Prescription</h3>
+                    <p class="p-consultation">{{consultation()!.prescription}}</p>
+                </div>
+            </div>
+        }
+        <div class="btn-grp edit-btns">
+            @if(currentLoggedInUser()!.role === 'DOCTOR'){
+                @if(!editable()){
+                    <button class="btn" (click)="onEdit()">
+                        Edit
+                        <i class="fa-solid fa-pen"></i>
+                    </button>
+                    <button class="btn btn-danger" (click)="onDelete()">
+                        Delete
+                        <i class="fa-solid fa-trash"></i>
+                    </button>
+                }@else if (editable()) {
+                    <button class="btn" (click)="onCancel()">
+                        Cancel
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                    <button class="btn btn-arrow" (click)="onEditConsultation()">
+                        Submit
+                        <i class="fa-solid fa-arrow-right"></i>
+                    </button>
+                }
+            }
+        </div>
+    }@else {
+        <div class="no-consultation">
+            @if(!create()){
+                <h2>No consultations found</h2>
+                @if(currentLoggedInUser()!.role === 'DOCTOR'){
+                    <button class="btn" (click)="onCreate()" [disabled]="status() == 'CANCELLED'">
+                        Create
+                        <i class="fa-solid fa-plus"></i>
+                    </button>
+                }
+            }@else {
+                <form class="consultation-form" [formGroup]="newConsultationForm">
+                    <h2>Consultation</h2>
+                    <div class="form-control">
+                        <mat-form-field appearance="outline">
+                            <mat-label>Notes</mat-label>
+                            <textarea matInput formControlName="newNotes"></textarea>
+                          </mat-form-field>
+                        @if(isNewNotesValid){
+                            <p class="form-control-error">Notes can only contain 5-500 characters</p>
+                        }
+                    </div>
+                    <div class="form-control">
+                        <mat-form-field appearance="outline">
+                            <mat-label>Prescription</mat-label>
+                            <textarea matInput formControlName="newPrescription"></textarea>
+                        </mat-form-field>
+                        @if(isNewPrescriptionValid){
+                            <p class="form-control-error">Prescription can only contain 5-1000 characters</p>
+                        }
+                    </div>
+    
+                    <div class="btn-grp">
+                        <button class="btn" (click)="onCancelCreate()">
+                            Cancel
+                            <i class="fa-solid fa-xmark"></i>
+                        </button>
+                        <button class="btn btn-arrow" (click)="onCreateConsultation()">
+                            Submit
+                            <i class="fa-solid fa-arrow-right"></i>
+                        </button>
+                    </div>
+                </form>
+            }
+        </div>
+    }
+</div>

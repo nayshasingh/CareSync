@@ -1,0 +1,22 @@
+<nav id="navbar">
+    <a routerLink="home" routerLinkActive="active-route">Home</a>
+    @if(user() != null){
+        <a routerLink="availabilitites" routerLinkActive="active-route">Availabilities</a>
+    }
+    <div class="side-nav">
+        @if(user() === null){
+            <a routerLink="login" routerLinkActive="active-route">Login</a>
+            <a routerLink="register" class="btn btn-register">Register</a>
+        }@else {
+            @if(user().role === 'DOCTOR'){
+                <a [routerLink]="['users', user().userId]" class="a-profile" matTooltip = "Profile">
+                    <img src="/doctor.png" alt="pic" class="profile-pic">
+                </a>
+            }@else{
+                <a [routerLink]="['users', user().userId]" class="a-profile" matTooltip = "Profile">
+                    <img src="/patient.png" alt="pic" class="profile-pic">
+                </a>
+            }
+        }
+    </div>
+</nav>
