@@ -1,0 +1,49 @@
+services:
+  mysql:
+    image: mysql:8.4
+    container_name: healthcare-mysql
+    environment:
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-healthcare}
+      MYSQL_USER: ${MYSQL_USER:-healthcare_user}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-healthcare_password}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root_password}
+    ports:
+      - "${MYSQL_PORT:-3306}:3306"
+    volumes:
+      - healthcare_mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost -u$${MYSQL_USER} -p$${MYSQL_PASSWORD}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  mailpit:
+    image: axllent/mailpit:latest
+    container_name: healthcare-mailpit
+    ports:
+      - "${MAIL_SMTP_PORT:-1025}:1025"
+      - "${MAIL_UI_PORT:-8025}:8025"
+
+  backend:
+    build:
+      context: ./backend
+    container_name: healthcare-backend
+    depends_on:
+      mysql:
+        condition: service_healthy
+      mailpit:
+        condition: service_started
+    environment:
+      MYSQL_HOST: mysql
+      MYSQL_PORT: 3306
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-healthcare}
+      MYSQL_USER: ${MYSQL_USER:-healthcare_user}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-healthcare_password}
+      MAIL_HOST: mailpit
+      MAIL_PORT: 1025
+      SERVER_PORT: 8080
+    ports:
+      - "${BACKEND_PORT:-8080}:8080"
+
+volumes:
+  healthcare_mysql_data:

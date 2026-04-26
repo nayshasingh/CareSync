@@ -1,0 +1,8 @@
+.env
+.m2/
+.DS_Store
+node_modules/
+dist/
+target/
+logs/
+INTERVIEW_PREP.md

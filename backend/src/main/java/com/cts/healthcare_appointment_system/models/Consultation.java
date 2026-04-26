@@ -32,9 +32,9 @@ public class Consultation {
     @JsonManagedReference
     private Appointment appointment;
 
-    @Column(name = "notes")
+    @Column(name = "notes", length = 500)
     private String notes;
 
-    @Column(name = "prescription")
+    @Column(name = "prescription", length = 1000)
     private String prescription;
 }
