@@ -16,8 +16,8 @@ import com.cts.healthcare_appointment_system.dto.ChangePasswordDTO;
 import com.cts.healthcare_appointment_system.dto.JwtDTO;
 import com.cts.healthcare_appointment_system.dto.UserDTO;
 import com.cts.healthcare_appointment_system.dto.UserLoginDTO;
+import com.cts.healthcare_appointment_system.dto.UserResponseDTO;
 import com.cts.healthcare_appointment_system.dto.UserUpdateDTO;
-import com.cts.healthcare_appointment_system.models.User;
 import com.cts.healthcare_appointment_system.services.UserService;
 
 import jakarta.validation.Valid;
@@ -32,25 +32,25 @@ public class UserController {
 	
 	//Fetch all the users
     @GetMapping("")
-    public ResponseEntity<List<User>> getAllUsers() {
+    public ResponseEntity<List<UserResponseDTO>> getAllUsers() {
         return userService.getAllusers();
     }
     	
     //Get user by id
     @GetMapping("/{id}")
-    public ResponseEntity<User> getUserById(@PathVariable int id){
+    public ResponseEntity<UserResponseDTO> getUserById(@PathVariable int id){
     	return userService.getUserById(id);
     }
     
     // Get user by email
     @GetMapping("/email/{email}")
-    public ResponseEntity<User> getUserByEmail(@PathVariable String email){
+    public ResponseEntity<UserResponseDTO> getUserByEmail(@PathVariable String email){
     	return userService.getUserByEmail(email);
     }
 
     // Register a new user
     @PostMapping("/register")
-    public ResponseEntity<User> registerUser(@RequestBody @Valid UserDTO dto) {
+    public ResponseEntity<UserResponseDTO> registerUser(@RequestBody @Valid UserDTO dto) {
         return userService.registerUser(dto);
     }
     
@@ -62,19 +62,19 @@ public class UserController {
     
     //Update the existing user details
     @PutMapping("")
-    public ResponseEntity<User> changeUserDetails(@Valid @RequestBody UserUpdateDTO userUpdateDTO){
+    public ResponseEntity<UserResponseDTO> changeUserDetails(@Valid @RequestBody UserUpdateDTO userUpdateDTO){
     	return userService.changeUserDetails(userUpdateDTO);
     }
 
     // Forgot password
     @PutMapping("/change-password")
-    public ResponseEntity<User> changePassword(@Valid @RequestBody ChangePasswordDTO dto){
+    public ResponseEntity<UserResponseDTO> changePassword(@Valid @RequestBody ChangePasswordDTO dto){
         return userService.changeUserPassword(dto);
     }
     
     //Delete user by id
     @DeleteMapping("/{id}")
-    public ResponseEntity<User> deleteUserById(@PathVariable int id){
+    public ResponseEntity<UserResponseDTO> deleteUserById(@PathVariable int id){
     	return userService.deleteUserById(id);
     }
     

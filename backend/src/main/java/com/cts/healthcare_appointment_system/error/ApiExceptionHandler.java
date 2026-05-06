@@ -1,5 +1,6 @@
 package com.cts.healthcare_appointment_system.error;
  
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
  
@@ -12,6 +13,8 @@ import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+
+import com.cts.healthcare_appointment_system.dto.ApiErrorResponseDTO;
  
 import jakarta.servlet.http.HttpServletRequest;
  
@@ -20,98 +23,68 @@ public class ApiExceptionHandler{
  
     // Handle Api exceptions
     @ExceptionHandler(ApiException.class)
-    public ResponseEntity<Map<String, String>> handleApiException(ApiException ex){
-        Map<String, String> err = new HashMap<>();
- 
-        err.put("error", "ApiException");
-        err.put("message", ex.getMessage());
-        err.put("statusCode", ex.getErrorCode().toString());
- 
-        return ResponseEntity.status(ex.getErrorCode()).body(err);
+    public ResponseEntity<ApiErrorResponseDTO> handleApiException(ApiException ex, HttpServletRequest req){
+        return buildResponse("ApiException", ex.getMessage(), ex.getErrorCode(), req, null);
     }
  
     // Handle field validaiton exceptions
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<Map<String, String>> handleMethodArgumentNotValidException(MethodArgumentNotValidException ex){
-        Map<String, String> err = new HashMap<>();
+    public ResponseEntity<ApiErrorResponseDTO> handleMethodArgumentNotValidException(MethodArgumentNotValidException ex, HttpServletRequest req){
+        Map<String, String> fieldErrors = new HashMap<>();
  
-        err.put("error", "Field Validation Error");
         ex.getBindingResult().getFieldErrors().forEach(e -> {
-            err.put(e.getField(), e.getDefaultMessage());
+            fieldErrors.put(e.getField(), e.getDefaultMessage());
         });
  
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(err);
+        return buildResponse("Field Validation Error", "Request validation failed", HttpStatus.BAD_REQUEST, req, fieldErrors);
     }
  
     // Handle Database integrity violation exceptions
     @ExceptionHandler(DataIntegrityViolationException.class)
-    public ResponseEntity<Map<String, String>> handleDataIntegrityViolationException(DataIntegrityViolationException ex){
-        Map<String, Map<String, String>> errorMap = new HashMap<>();
-        Map<String, String> err = new HashMap<>();
-       
-        err.put("error", "Database Constraint Violation");
-        err.put("message", ex.getRootCause().getMessage());
-        err.put("statusCode", HttpStatus.BAD_REQUEST.toString());
- 
-        errorMap.put("error", err);
- 
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(err);
+    public ResponseEntity<ApiErrorResponseDTO> handleDataIntegrityViolationException(DataIntegrityViolationException ex, HttpServletRequest req){
+        String message = ex.getRootCause() != null ? ex.getRootCause().getMessage() : "Database constraint violation";
+        return buildResponse("Database Constraint Violation", message, HttpStatus.BAD_REQUEST, req, null);
     }
  
     // Handle HTTP method not allowed exception
     @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
-    public ResponseEntity<Map<String, String>> handleHttpRequestMethodNotSupported(HttpRequestMethodNotSupportedException ex, HttpServletRequest req){
- 
-        Map<String, String> err = new HashMap<>();
-       
-        err.put("error", "Method Not Allowed");
-        err.put("message", "This HTTP method is not supported for this endpoint");
-        err.put("requestedEndpoint", req.getRequestURI());
-        err.put("requestedMethod", req.getMethod());
-        err.put("supportedMethods", String.join(", ", ex.getSupportedMethods()));
-        err.put("statusCode", HttpStatus.BAD_REQUEST.toString());
- 
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(err);
+    public ResponseEntity<ApiErrorResponseDTO> handleHttpRequestMethodNotSupported(HttpRequestMethodNotSupportedException ex, HttpServletRequest req){
+        String message = "This HTTP method is not supported for this endpoint";
+        if (ex.getSupportedMethods() != null && ex.getSupportedMethods().length > 0) {
+            message = message + ". Supported methods: " + String.join(", ", ex.getSupportedMethods());
+        }
+
+        return buildResponse("Method Not Allowed", message, HttpStatus.METHOD_NOT_ALLOWED, req, null);
     }
  
     // Handle message not readable exception
     @ExceptionHandler(HttpMessageNotReadableException.class)
-    public ResponseEntity<Map<String, String>> handleHttpMessageNotReadableException(HttpMessageNotReadableException ex, HttpServletRequest req){
- 
-        Map<String, String> err = new HashMap<>();
-       
-        err.put("error", "Invalid Request Body");
-        err.put("message", ex.getMessage());
-        err.put("statusCode", HttpStatus.BAD_REQUEST.toString());
- 
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(err);
+    public ResponseEntity<ApiErrorResponseDTO> handleHttpMessageNotReadableException(HttpMessageNotReadableException ex, HttpServletRequest req){
+        return buildResponse("Invalid Request Body", ex.getMessage(), HttpStatus.BAD_REQUEST, req, null);
     }
 
     // Handle Bad credentials exception
     @ExceptionHandler(BadCredentialsException.class)
-    public ResponseEntity<Map<String, String>> handleBackCredentials(BadCredentialsException ex){
-        Map<String, String> err = new HashMap<>();
-       
-        err.put("error", ex.getClass().getSimpleName());
-        err.put("message", "Email or password is incorrect");
-        err.put("statusCode", HttpStatus.BAD_REQUEST.toString());
- 
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(err);
+    public ResponseEntity<ApiErrorResponseDTO> handleBackCredentials(BadCredentialsException ex, HttpServletRequest req){
+        return buildResponse(ex.getClass().getSimpleName(), "Email or password is incorrect", HttpStatus.BAD_REQUEST, req, null);
     }
 
     // Handle all other unhandled exceptions (generic exception handler)
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<Map<String, String>> handleGeneralException(Exception ex){
- 
-        Map<String, String> err = new HashMap<>();
-       
-        err.put("error", ex.getClass().getSimpleName());
-        err.put("message", ex.getMessage());
-        err.put("statusCode", HttpStatus.INTERNAL_SERVER_ERROR.toString());
- 
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(err);
+    public ResponseEntity<ApiErrorResponseDTO> handleGeneralException(Exception ex, HttpServletRequest req){
+        return buildResponse(ex.getClass().getSimpleName(), ex.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR, req, null);
     } 
-   
- 
- 
+
+    private ResponseEntity<ApiErrorResponseDTO> buildResponse(String error, String message, HttpStatus status, HttpServletRequest req, Map<String, String> fieldErrors) {
+        ApiErrorResponseDTO response = new ApiErrorResponseDTO(
+                LocalDateTime.now(),
+                error,
+                message,
+                status.value(),
+                req != null ? req.getRequestURI() : null,
+                req != null ? req.getMethod() : null,
+                fieldErrors);
+
+        return ResponseEntity.status(status).body(response);
+    }
 }

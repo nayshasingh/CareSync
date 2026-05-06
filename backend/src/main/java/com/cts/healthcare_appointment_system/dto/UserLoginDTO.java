@@ -1,6 +1,7 @@
 package com.cts.healthcare_appointment_system.dto;
 
 import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
@@ -13,6 +14,6 @@ public class UserLoginDTO {
     @NotNull(message = "Email can't be null")
     private String email;
 
-    @NotNull(message = "Password can't be null")
+    @NotBlank(message = "Password is required")
     String password;
 }

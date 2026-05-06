@@ -14,6 +14,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -21,6 +22,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
  
 import com.cts.healthcare_appointment_system.dto.UserDTO;
+import com.cts.healthcare_appointment_system.dto.UserResponseDTO;
 import com.cts.healthcare_appointment_system.dto.UserUpdateDTO;
 import com.cts.healthcare_appointment_system.enums.UserRole;
 import com.cts.healthcare_appointment_system.models.User;
@@ -45,7 +47,7 @@ public class UserControllerTest {
         user.setEmail("alex@gmail.com");
         user.setPassword("alex@cr7");
  
-        when(service.getUserById(1)).thenReturn(ResponseEntity.ok(user));
+        when(service.getUserById(1)).thenReturn(ResponseEntity.ok(UserResponseDTO.from(user)));
  
         mockMvc.perform(get("/users/{id}", 1)
                 .contentType(MediaType.APPLICATION_JSON))
@@ -68,7 +70,7 @@ public class UserControllerTest {
         user2.setPassword("alex@123");
         List<User> users = List.of(user1, user2);
  
-        when(service.getAllusers()).thenReturn(ResponseEntity.ok(users));
+        when(service.getAllusers()).thenReturn(ResponseEntity.ok(users.stream().map(UserResponseDTO::from).toList()));
  
         mockMvc.perform(get("/users")
                 .contentType(MediaType.APPLICATION_JSON))
@@ -96,7 +98,7 @@ public class UserControllerTest {
         dto.setPassword(user.getPassword());
         dto.setPhone(user.getPhone());
  
-        when(service.registerUser(dto)).thenReturn(ResponseEntity.status(HttpStatus.CREATED).body(user));
+        when(service.registerUser(dto)).thenReturn(ResponseEntity.status(HttpStatus.CREATED).body(UserResponseDTO.from(user)));
  
         mockMvc.perform(post("/users/register")
                 .content(new ObjectMapper().writeValueAsString(dto))
@@ -123,7 +125,7 @@ public class UserControllerTest {
         dto.setPassword(user.getPassword());
         dto.setPhone(user.getPhone());
  
-        when(service.changeUserDetails(dto)).thenReturn(ResponseEntity.status(HttpStatus.OK).body(user));
+        when(service.changeUserDetails(dto)).thenReturn(ResponseEntity.status(HttpStatus.OK).body(UserResponseDTO.from(user)));
  
         mockMvc.perform(put("/users")
                 .content(new ObjectMapper().writeValueAsString(dto))
@@ -144,7 +146,7 @@ public class UserControllerTest {
         user.setPassword("Janavi@cr7");
         user.setRole(UserRole.PATIENT);
 
-        when(service.deleteUserById(1)).thenReturn(ResponseEntity.status(HttpStatus.OK).body(user));
+        when(service.deleteUserById(1)).thenReturn(ResponseEntity.status(HttpStatus.OK).body(UserResponseDTO.from(user)));
  
         mockMvc.perform(delete("/users/{id}", 1)
                 .contentType(MediaType.APPLICATION_JSON))
@@ -153,6 +155,38 @@ public class UserControllerTest {
                 .andExpect(jsonPath("$.email").value("Janavi@gmail.com"))
                 .andDo(print());
     } 
+
+    @Test
+    public void testValidationErrorResponse() throws Exception {
+        UserDTO dto = new UserDTO();
+        dto.setEmail("invalid-email");
+        dto.setPassword("password");
+        dto.setPhone("123");
+
+        mockMvc.perform(post("/users/register")
+                .content(new ObjectMapper().writeValueAsString(dto))
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error").value("Field Validation Error"))
+                .andExpect(jsonPath("$.message").value("Request validation failed"))
+                .andExpect(jsonPath("$.statusCode").value(400))
+                .andExpect(jsonPath("$.path").value("/users/register"))
+                .andExpect(jsonPath("$.method").value("POST"))
+                .andExpect(jsonPath("$.fieldErrors.name").value("Name is required"))
+                .andDo(print());
+    }
+
+    @Test
+    public void testMethodNotAllowedErrorResponse() throws Exception {
+        mockMvc.perform(patch("/users")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isMethodNotAllowed())
+                .andExpect(jsonPath("$.error").value("Method Not Allowed"))
+                .andExpect(jsonPath("$.statusCode").value(405))
+                .andExpect(jsonPath("$.path").value("/users"))
+                .andExpect(jsonPath("$.method").value("PATCH"))
+                .andDo(print());
+    }
  
 }
  

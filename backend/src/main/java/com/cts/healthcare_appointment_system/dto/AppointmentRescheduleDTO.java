@@ -9,16 +9,14 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-// For creating a new appointment
-
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class AppointmentDTO {
+public class AppointmentRescheduleDTO {
 
-    @NotNull(message = "Patient id is required")
-    @Positive(message = "Patient id must be positive")
-    private Integer patientId;
+    @NotNull(message = "Appointment id is required")
+    @Positive(message = "Appointment id must be positive")
+    private Integer appointmentId;
 
     @NotNull(message = "Doctor id is required")
     @Positive(message = "Doctor id must be positive")

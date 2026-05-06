@@ -15,8 +15,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.cts.healthcare_appointment_system.dto.AvailabilityDTO;
+import com.cts.healthcare_appointment_system.dto.AvailabilityResponseDTO;
+import com.cts.healthcare_appointment_system.dto.AvailabilitySlotGenerationDTO;
 import com.cts.healthcare_appointment_system.dto.AvailabilityUpdateDTO;
-import com.cts.healthcare_appointment_system.models.Availability;
+import com.cts.healthcare_appointment_system.dto.PageResponseDTO;
 import com.cts.healthcare_appointment_system.services.AvailabilityService;
 
 import jakarta.validation.Valid;
@@ -31,7 +33,7 @@ public class AvailabilityController {
 
     // Retrieves all availabilities
     @GetMapping
-    public ResponseEntity<List<Availability>> getAllAvailabilities(
+    public ResponseEntity<List<AvailabilityResponseDTO>> getAllAvailabilities(
             @RequestParam(defaultValue = "0") int doctorId,
             @RequestParam(required = false) String namePrefix,
             @RequestParam(required = false) LocalDateTime timeSlotStart,
@@ -40,28 +42,48 @@ public class AvailabilityController {
         return availabilityService.getAllAvailabilities(doctorId, namePrefix, timeSlotStart, timeSlotEnd, isAvailable);
     }
 
+    @GetMapping("/page")
+    public ResponseEntity<PageResponseDTO<AvailabilityResponseDTO>> getAvailabilitiesPage(
+            @RequestParam(defaultValue = "0") int doctorId,
+            @RequestParam(required = false) String namePrefix,
+            @RequestParam(required = false) LocalDateTime timeSlotStart,
+            @RequestParam(required = false) LocalDateTime timeSlotEnd,
+            @RequestParam(required = false) String isAvailable,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "timeSlotStart") String sortBy,
+            @RequestParam(defaultValue = "asc") String sortDir) {
+        return availabilityService.getAvailabilitiesPage(doctorId, namePrefix, timeSlotStart, timeSlotEnd, isAvailable, page, size, sortBy, sortDir);
+    }
+
     // Retrieves availability by Id
     @GetMapping("/{id}")
-    public ResponseEntity<Availability> getAvailabilityById(@PathVariable int id) {
+    public ResponseEntity<AvailabilityResponseDTO> getAvailabilityById(@PathVariable int id) {
         return availabilityService.getAllAvailabilityById(id);
     }
 
     // Saves new availability
     @PostMapping
-    public ResponseEntity<Availability> saveAvailability(@Valid @RequestBody AvailabilityDTO dto) {
+    public ResponseEntity<AvailabilityResponseDTO> saveAvailability(@Valid @RequestBody AvailabilityDTO dto) {
         return availabilityService.saveAvailability(dto);
 
     }
 
+    // Generate multiple bookable slots inside a larger availability window
+    @PostMapping("/generate")
+    public ResponseEntity<List<AvailabilityResponseDTO>> generateAvailabilitySlots(@Valid @RequestBody AvailabilitySlotGenerationDTO dto) {
+        return availabilityService.generateAvailabilitySlots(dto);
+    }
+
     // Edit an existing availability
     @PutMapping
-    public ResponseEntity<Availability> editAvailability(@Valid @RequestBody AvailabilityUpdateDTO dto) {
+    public ResponseEntity<AvailabilityResponseDTO> editAvailability(@Valid @RequestBody AvailabilityUpdateDTO dto) {
         return availabilityService.editAvailability(dto);
     }
 
     // Delete availability by Id
     @DeleteMapping("/{id}")
-    public ResponseEntity<Availability> deleteAvailabilityById(@PathVariable int id) {
+    public ResponseEntity<AvailabilityResponseDTO> deleteAvailabilityById(@PathVariable int id) {
         return availabilityService.deleteAvailabilityByid(id);
     }
 

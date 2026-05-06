@@ -14,8 +14,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.cts.healthcare_appointment_system.dto.ConsultationDTO;
+import com.cts.healthcare_appointment_system.dto.ConsultationResponseDTO;
 import com.cts.healthcare_appointment_system.dto.ConsultationUpdateDTO;
-import com.cts.healthcare_appointment_system.models.Consultation;
 import com.cts.healthcare_appointment_system.services.ConsultationService;
 
 import jakarta.validation.Valid;
@@ -30,31 +30,31 @@ public class ConsultationController {
 	
     // Retrieve all consultations (optional appointmentId as a query parameter)
     @GetMapping
-    public ResponseEntity<List<Consultation>> getAllConsultations(@RequestParam(required = false) Integer appointmentId) {
+    public ResponseEntity<List<ConsultationResponseDTO>> getAllConsultations(@RequestParam(required = false) Integer appointmentId) {
         return consultationService.getAllConsultations(appointmentId);
     }
     
     //Retrieve Consultation by Id
     @GetMapping("/{id}")
-    public ResponseEntity<Consultation> getConsultationById(@PathVariable int id) {
+    public ResponseEntity<ConsultationResponseDTO> getConsultationById(@PathVariable int id) {
         return consultationService.getConsultationById(id);
     }
     
     // Create a new consultation
     @PostMapping
-    public ResponseEntity<Consultation> saveConsultation(@Valid @RequestBody ConsultationDTO consultationDTO) {
+    public ResponseEntity<ConsultationResponseDTO> saveConsultation(@Valid @RequestBody ConsultationDTO consultationDTO) {
         return consultationService.saveConsultation(consultationDTO);
     }
 
     // Update an existing consultation
     @PutMapping
-    public ResponseEntity<Consultation> updateConsultation(@Valid @RequestBody ConsultationUpdateDTO consultationUpdateDTO) {
+    public ResponseEntity<ConsultationResponseDTO> updateConsultation(@Valid @RequestBody ConsultationUpdateDTO consultationUpdateDTO) {
         return consultationService.updateConsultation(consultationUpdateDTO);
     }
 
     // Delete a consultation by id
     @DeleteMapping("/{id}")
-    public ResponseEntity<Consultation> deleteConsultationById(@PathVariable int id) {
+    public ResponseEntity<ConsultationResponseDTO> deleteConsultationById(@PathVariable int id) {
         return consultationService.deleteConsultation(id);
     
 }}

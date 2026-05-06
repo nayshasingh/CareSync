@@ -15,6 +15,7 @@ import lombok.extern.slf4j.Slf4j;
 public class GmailService implements EmailService{
 
     private JavaMailSender mailSender;
+    private NotificationLogService notificationLogService;
 
     @Override
     @Async
@@ -34,8 +35,10 @@ public class GmailService implements EmailService{
         try {
 			// Send the email
 			mailSender.send(mail);
+            notificationLogService.recordSent(recieverEmail, subject);
 		} catch (MailSendException e) {
 			log.error("Can't send mail to: {}, error message: {}", recieverEmail, e.getMessage());
+            notificationLogService.recordFailed(recieverEmail, subject, e.getMessage());
 		}
     }
     

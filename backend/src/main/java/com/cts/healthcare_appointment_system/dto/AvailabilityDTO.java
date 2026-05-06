@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 
 import jakarta.validation.constraints.Future;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -15,6 +16,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class AvailabilityDTO {
 	@NotNull(message = "Doctor id is required")
+    @Positive(message = "Doctor id must be positive")
     private Integer doctorId;
 
     @NotNull(message = "Time slot start cannot be null")

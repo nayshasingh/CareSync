@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import com.cts.healthcare_appointment_system.dto.ConsultationDTO;
+import com.cts.healthcare_appointment_system.dto.ConsultationResponseDTO;
 import com.cts.healthcare_appointment_system.dto.ConsultationUpdateDTO;
 import com.cts.healthcare_appointment_system.enums.AppointmentStatus;
 import com.cts.healthcare_appointment_system.error.ApiException;
@@ -28,10 +29,11 @@ public class ConsultationService {
     private ConsultationRepository repo;
     private AppointmentRepository appointmentRepo;
     private NotificationService notificationService;
+    private AuditLogService auditLogService;
 
     // GET methods
     // Get all consultations
-    public ResponseEntity<List<Consultation>> getAllConsultations(Integer appointmentId){
+    public ResponseEntity<List<ConsultationResponseDTO>> getAllConsultations(Integer appointmentId){
         List<Consultation> consultations;
         // appointmentId not provided
         if(appointmentId == null){
@@ -46,22 +48,22 @@ public class ConsultationService {
             }
             consultations = List.of(consultation);
         }
-        return ResponseEntity.status(HttpStatus.OK).body(consultations);
+        return ResponseEntity.status(HttpStatus.OK).body(consultations.stream().map(ConsultationResponseDTO::from).toList());
     }
 
     // Get consultation by id
-    public ResponseEntity<Consultation> getConsultationById(int id){
+    public ResponseEntity<ConsultationResponseDTO> getConsultationById(int id){
         Consultation consultation = repo.findById(id).orElse(null);
         if(consultation == null){
             throw new ApiException("No consultation available with id: " + id, HttpStatus.BAD_REQUEST);
         }
-        return ResponseEntity.status(HttpStatus.OK).body(consultation);
+        return ResponseEntity.status(HttpStatus.OK).body(ConsultationResponseDTO.from(consultation));
     }
 
     // POST methods
     // Save consultation
     @Transactional
-    public ResponseEntity<Consultation> saveConsultation(ConsultationDTO dto){
+    public ResponseEntity<ConsultationResponseDTO> saveConsultation(ConsultationDTO dto){
         int appointmentId = dto.getAppointmentId();
         String notes = dto.getNotes();
         String prescription = dto.getPrescription();
@@ -97,14 +99,15 @@ public class ConsultationService {
         notificationService.sendConsultationEmail(appointment);
 
         log.info("Created a new consultation for appointmentd with id: {}", dto.getAppointmentId());
+        auditLogService.record(appointment.getDoctor() == null ? null : appointment.getDoctor().getUserId(), "CONSULTATION_CREATED", "CONSULTATION", consultation.getConsultationId(), "Consultation created for appointment id: " + appointment.getAppointmentId());
 
-        return ResponseEntity.status(HttpStatus.OK).body(consultation);
+        return ResponseEntity.status(HttpStatus.OK).body(ConsultationResponseDTO.from(consultation));
     }
 
     // PUT methods
     // Update consultation
     @Transactional
-    public ResponseEntity<Consultation> updateConsultation(ConsultationUpdateDTO dto){
+    public ResponseEntity<ConsultationResponseDTO> updateConsultation(ConsultationUpdateDTO dto){
         int consultationId = dto.getConsultationId();
         String notes = dto.getNotes();
         String prescription = dto.getPrescription();
@@ -121,13 +124,14 @@ public class ConsultationService {
         repo.save(consultation);
 
         log.info("Updated a consultation with id: {} for appointmentId: {}", consultation.getConsultationId(), consultation.getAppointment().getAppointmentId());
+        auditLogService.record(consultation.getAppointment().getDoctor() == null ? null : consultation.getAppointment().getDoctor().getUserId(), "CONSULTATION_UPDATED", "CONSULTATION", consultation.getConsultationId(), "Consultation was updated");
 
-        return ResponseEntity.status(HttpStatus.OK).body(consultation);
+        return ResponseEntity.status(HttpStatus.OK).body(ConsultationResponseDTO.from(consultation));
     }
 
     // DELETE consultation
     @Transactional
-    public ResponseEntity<Consultation> deleteConsultation(int id){
+    public ResponseEntity<ConsultationResponseDTO> deleteConsultation(int id){
         Consultation consultation = repo.findById(id).orElse(null);
 
         if(consultation == null){
@@ -136,7 +140,9 @@ public class ConsultationService {
         
         log.info("Deleted a consultation with id: {} for appointmentId: {}", consultation.getConsultationId(), consultation.getAppointment().getAppointmentId());
 
+        ConsultationResponseDTO response = ConsultationResponseDTO.from(consultation);
         Appointment appointment = consultation.getAppointment();
+        auditLogService.record(appointment.getDoctor() == null ? null : appointment.getDoctor().getUserId(), "CONSULTATION_DELETED", "CONSULTATION", consultation.getConsultationId(), "Consultation was deleted");
         appointment.setConsultation(null);
         consultation.setAppointment(null);
 
@@ -144,7 +150,7 @@ public class ConsultationService {
         repo.delete(consultation);
 
 
-        return ResponseEntity.status(HttpStatus.OK).body(consultation);
+        return ResponseEntity.status(HttpStatus.OK).body(response);
     }
     
 }

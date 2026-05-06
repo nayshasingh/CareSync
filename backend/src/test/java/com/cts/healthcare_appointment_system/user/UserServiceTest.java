@@ -16,10 +16,12 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.password.PasswordEncoder;
  
 import com.cts.healthcare_appointment_system.dto.UserDTO;
+import com.cts.healthcare_appointment_system.dto.UserResponseDTO;
 import com.cts.healthcare_appointment_system.dto.UserUpdateDTO;
 import com.cts.healthcare_appointment_system.enums.UserRole;
 import com.cts.healthcare_appointment_system.models.User;
 import com.cts.healthcare_appointment_system.repositories.UserRepository;
+import com.cts.healthcare_appointment_system.services.AuditLogService;
 import com.cts.healthcare_appointment_system.services.UserService;
  
 @ExtendWith(MockitoExtension.class)
@@ -33,6 +35,9 @@ public class UserServiceTest {
  
     @Mock
     private PasswordEncoder encoder;
+
+    @Mock
+    private AuditLogService auditLogService;
    
     @Test
     void testGetAllUsers() {
@@ -53,7 +58,7 @@ public class UserServiceTest {
  
         when(repo.findAll()).thenReturn(users);
  
-        List<User> fetchedUsers = service.getAllusers().getBody();
+        List<UserResponseDTO> fetchedUsers = service.getAllusers().getBody();
  
         assertEquals(fetchedUsers.size(), 2);
     }
@@ -69,7 +74,7 @@ public class UserServiceTest {
         
         when(repo.findById(1)).thenReturn(Optional.of(user));
  
-        User fetchedUser = service.getUserById(1).getBody();
+        UserResponseDTO fetchedUser = service.getUserById(1).getBody();
  
         assertEquals(fetchedUser.getName(), "Mainak");
     }
@@ -91,7 +96,7 @@ public class UserServiceTest {
         when(repo.findById(1)).thenReturn(Optional.of(user));
         when(repo.save(user)).thenReturn(user);
  
-        User changedUser = service.changeUserDetails(dto).getBody();
+        UserResponseDTO changedUser = service.changeUserDetails(dto).getBody();
  
         assertEquals(changedUser.getName(), "Rohit");
     }
@@ -111,7 +116,7 @@ public class UserServiceTest {
 	 
         when(repo.findById(1)).thenReturn(Optional.of(user));
        
-        User deletedUser = service.deleteUserById(1).getBody();
+        UserResponseDTO deletedUser = service.deleteUserById(1).getBody();
         verify(repo, times(1)).delete(user);
  
         assertEquals(deletedUser.getEmail(), "mahi@gmail.com");
@@ -144,7 +149,7 @@ public class UserServiceTest {
  
         when(repo.save(user)).thenReturn(user);
  
-        User savedUser = service.registerUser(dto).getBody();
+        UserResponseDTO savedUser = service.registerUser(dto).getBody();
  
         assertEquals(savedUser.getEmail(), "m@gmail.com");
     }

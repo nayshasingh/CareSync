@@ -14,7 +14,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.cts.healthcare_appointment_system.dto.AppointmentDTO;
-import com.cts.healthcare_appointment_system.models.Appointment;
+import com.cts.healthcare_appointment_system.dto.AppointmentRescheduleDTO;
+import com.cts.healthcare_appointment_system.dto.AppointmentResponseDTO;
+import com.cts.healthcare_appointment_system.dto.PageResponseDTO;
 import com.cts.healthcare_appointment_system.services.AppointmentService;
 
 import jakarta.validation.Valid;
@@ -29,7 +31,7 @@ public class AppointmentController {
 	
 	//Retrieve all appointment details (sorted by time_slot_start)
 	@GetMapping
-	public ResponseEntity<List<Appointment>> getAllAppointments(
+	public ResponseEntity<List<AppointmentResponseDTO>> getAllAppointments(
 			@RequestParam(defaultValue = "0") int patientId,
 			@RequestParam(defaultValue = "0") int doctorId,
 			@RequestParam(required = false) String patientName,
@@ -40,28 +42,51 @@ public class AppointmentController {
 			){
 		return appointmentService.getAllAppointments(patientId, doctorId, patientName, doctorName, timeSlotStart, timeSlotEnd, status);
 	}
+
+	@GetMapping("/page")
+	public ResponseEntity<PageResponseDTO<AppointmentResponseDTO>> getAppointmentsPage(
+			@RequestParam(defaultValue = "0") int patientId,
+			@RequestParam(defaultValue = "0") int doctorId,
+			@RequestParam(required = false) String patientName,
+			@RequestParam(required = false) String doctorName,
+			@RequestParam(required = false) LocalDateTime timeSlotStart,
+			@RequestParam(required = false) LocalDateTime timeSlotEnd,
+			@RequestParam(required = false) String status,
+			@RequestParam(defaultValue = "0") int page,
+			@RequestParam(defaultValue = "10") int size,
+			@RequestParam(defaultValue = "timeSlotStart") String sortBy,
+			@RequestParam(defaultValue = "desc") String sortDir
+			){
+		return appointmentService.getAppointmentsPage(patientId, doctorId, patientName, doctorName, timeSlotStart, timeSlotEnd, status, page, size, sortBy, sortDir);
+	}
 	
 	//Retrieve a specific appointment by id
 	@GetMapping("/{id}")
-	public ResponseEntity<Appointment> getAppointmentById(@PathVariable int id){
+	public ResponseEntity<AppointmentResponseDTO> getAppointmentById(@PathVariable int id){
 		return appointmentService.getAppointmentById(id);
 	}
 	
 	//Create a new appointment
 	@PostMapping
-	public ResponseEntity<Appointment> saveAppointment(@Valid @RequestBody AppointmentDTO dto){
+	public ResponseEntity<AppointmentResponseDTO> saveAppointment(@Valid @RequestBody AppointmentDTO dto){
 		return appointmentService.saveAppointment(dto);
 	}
 	
 	//Cancel an appointment by id
 	@PutMapping("/cancel/{id}")
-	public ResponseEntity<Appointment> cancelAppointment(@PathVariable int id){ 
+	public ResponseEntity<AppointmentResponseDTO> cancelAppointment(@PathVariable int id){
 		return appointmentService.cancelAppointment(id);
+	}
+
+	//Reschedule an appointment to another available slot
+	@PutMapping("/reschedule")
+	public ResponseEntity<AppointmentResponseDTO> rescheduleAppointment(@Valid @RequestBody AppointmentRescheduleDTO dto) {
+		return appointmentService.rescheduleAppointment(dto);
 	}
 	
 	//Mark as completed an appointment
 	@PutMapping("/complete/{id}")
-	public ResponseEntity<Appointment> completeAppointment(@PathVariable int id){
+	public ResponseEntity<AppointmentResponseDTO> completeAppointment(@PathVariable int id){
 		return appointmentService.completeAppointment(id);
 	}
 }

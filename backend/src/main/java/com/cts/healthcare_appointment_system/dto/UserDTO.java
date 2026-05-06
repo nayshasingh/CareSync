@@ -29,12 +29,12 @@ public class UserDTO {
     @NotBlank(message = "Email is required")
     private String email;
 
-    @NotNull(message = "Password is required")
+    @NotBlank(message = "Password is required")
     @Pattern(regexp = "^(?=.*[A-Za-z])(?=.*\\d)(?=.*[@#$%^&+=!])[A-Za-z\\d@#$%^&+=!]{8,20}$", 
     		 message = "Password must be 8-20 characters long and include at least one letter, one number, and one special character")
     private String password;
 
-    @NotNull(message = "Phone number is required")
+    @NotBlank(message = "Phone number is required")
     @Pattern(regexp = "\\d{10}", message = "Phone number is invalid")
     private String phone;
 }

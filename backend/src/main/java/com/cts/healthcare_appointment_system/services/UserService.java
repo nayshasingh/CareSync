@@ -14,6 +14,7 @@ import com.cts.healthcare_appointment_system.dto.ChangePasswordDTO;
 import com.cts.healthcare_appointment_system.dto.JwtDTO;
 import com.cts.healthcare_appointment_system.dto.UserDTO;
 import com.cts.healthcare_appointment_system.dto.UserLoginDTO;
+import com.cts.healthcare_appointment_system.dto.UserResponseDTO;
 import com.cts.healthcare_appointment_system.dto.UserUpdateDTO;
 import com.cts.healthcare_appointment_system.enums.AppointmentStatus;
 import com.cts.healthcare_appointment_system.enums.UserRole;
@@ -36,28 +37,29 @@ public class UserService {
     private JwtUtils jwtUtils;
     private AuthenticationManager authManager;
     private AppointmentService appointmentService;
+    private AuditLogService auditLogService;
 
     // GET methods
     // Get all users 
-    public ResponseEntity<List<User>> getAllusers() {
+    public ResponseEntity<List<UserResponseDTO>> getAllusers() {
         List<User> users = userRepo.findAll();
         if (users.isEmpty()) {
             throw new ApiException("No users found", HttpStatus.NOT_FOUND);
         }
-        return ResponseEntity.status(HttpStatus.OK).body(users);
+        return ResponseEntity.status(HttpStatus.OK).body(users.stream().map(UserResponseDTO::from).toList());
     }
 
     //Get user by id
-    public ResponseEntity<User> getUserById(int id) {
+    public ResponseEntity<UserResponseDTO> getUserById(int id) {
         User user = userRepo.findById(id).orElse(null);
         if (user == null) {
             throw new ApiException("No user with user id: " + id + " found", HttpStatus.BAD_REQUEST);
         }
-        return ResponseEntity.status(HttpStatus.OK).body(user);
+        return ResponseEntity.status(HttpStatus.OK).body(UserResponseDTO.from(user));
     }
     
     //Get user by email
-    public ResponseEntity<User> getUserByEmail(String email) {
+    public ResponseEntity<UserResponseDTO> getUserByEmail(String email) {
         User user = userRepo.findByEmail(email).orElse(null);
 
         log.debug("Executing getUserByEmail() for: {}", email);
@@ -66,13 +68,13 @@ public class UserService {
             log.error("No user found in getUserByEmail() with email: {}", email);
             throw new ApiException("No user found with email: " + email + " found", HttpStatus.BAD_REQUEST);
         }
-        return ResponseEntity.status(HttpStatus.OK).body(user);
+        return ResponseEntity.status(HttpStatus.OK).body(UserResponseDTO.from(user));
     }
 
     // PUT methods
     // Change user details
     @Transactional
-    public ResponseEntity<User> changeUserDetails(UserUpdateDTO dto){
+    public ResponseEntity<UserResponseDTO> changeUserDetails(UserUpdateDTO dto){
         int userId = dto.getUserId();
         String name = dto.getName();
         String password = dto.getPassword();
@@ -90,12 +92,13 @@ public class UserService {
         user.setPhone(phone);
 
         userRepo.save(user);
-        return ResponseEntity.status(HttpStatus.OK).body(user);
+        auditLogService.record(user.getUserId(), "USER_PROFILE_UPDATED", "USER", user.getUserId(), "User profile details were updated");
+        return ResponseEntity.status(HttpStatus.OK).body(UserResponseDTO.from(user));
 
     }
 
     // Change password of an user
-    public ResponseEntity<User> changeUserPassword(ChangePasswordDTO dto){
+    public ResponseEntity<UserResponseDTO> changeUserPassword(ChangePasswordDTO dto){
         String email = dto.getEmail();
         String newPassword = dto.getNewPassword();
 
@@ -109,14 +112,15 @@ public class UserService {
 
         user.setPassword(passwordEncoder.encode(newPassword));
         userRepo.save(user);
+        auditLogService.record(user.getUserId(), "USER_PASSWORD_CHANGED", "USER", user.getUserId(), "User password was changed");
 
-        return ResponseEntity.status(HttpStatus.OK).body(user);
+        return ResponseEntity.status(HttpStatus.OK).body(UserResponseDTO.from(user));
     }
 
     // POST methods
     // Register/save a new user
     @Transactional
-    public ResponseEntity<User> registerUser(UserDTO dto) {
+    public ResponseEntity<UserResponseDTO> registerUser(UserDTO dto) {
         // userId is set to null so that JPA will think it's a new entity, will generate primary key value, and save it
 
         log.debug("Executing registerUser() for user with email: {}", dto.getEmail());
@@ -145,7 +149,8 @@ public class UserService {
         if (savedUser == null) {
             throw new ApiException("Failed to create new user", HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        return ResponseEntity.status(HttpStatus.CREATED).body(savedUser);
+        auditLogService.record(savedUser.getUserId(), "USER_REGISTERED", "USER", savedUser.getUserId(), "New user registered with role: " + savedUser.getRole());
+        return ResponseEntity.status(HttpStatus.CREATED).body(UserResponseDTO.from(savedUser));
     }
 
     // Login a user
@@ -174,7 +179,7 @@ public class UserService {
     // DELETE methods
     // Remove an user
     @Transactional
-    public ResponseEntity<User> deleteUserById(int id) {
+    public ResponseEntity<UserResponseDTO> deleteUserById(int id) {
         User user = userRepo.findById(id).orElse(null);
 
         log.debug("Executing deleteUserById() for user with id: {}", id);
@@ -199,8 +204,10 @@ public class UserService {
         // This will also remove the availabilities (Thanks to 'orphanRemoval = true')
         user.getAvailabilities().forEach(e -> e.setDoctor(null));
 
+        UserResponseDTO response = UserResponseDTO.from(user);
+        auditLogService.record(user.getUserId(), "USER_DELETED", "USER", user.getUserId(), "User account was deleted");
         userRepo.delete(user);
-        
-        return ResponseEntity.status(HttpStatus.OK).body(user);
+
+        return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 }
