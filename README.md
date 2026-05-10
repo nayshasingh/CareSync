@@ -19,7 +19,6 @@ The **Smart Healthcare Appointment System** is a full-stack application built to
 - [Database Schema](#database-schema)
 - [Project Strengths](#project-strengths)
 - [Testing](#testing)
-- [Resume Highlights](#resume-highlights)
 
 ---
 
@@ -380,18 +379,3 @@ mvn test
 ```
 
 Current backend test coverage includes service logic, DTO validation, controller behavior, security authorization, notification logging, scheduling rules, and reporting summary calculations.
-
----
-
-## Resume Highlights
-
-Use or adapt these bullets for a backend-focused resume:
-
-- Built a Spring Boot healthcare appointment API with JWT authentication, role-based access control, DTO-based contracts, and centralized error handling.
-- Implemented appointment booking, rescheduling, cancellation, doctor availability management, overlap prevention, and bulk slot generation.
-- Added Flyway migrations, Docker Compose setup, MySQL integration, Swagger documentation, and Actuator health endpoints for production-style backend setup.
-- Developed audit logging and notification history modules to track important system actions and email delivery attempts.
-- Added a reporting summary endpoint for user, appointment, and availability metrics.
-- Improved backend quality with request validation, pagination, sorting, and focused JUnit/Mockito/Spring Security tests.
-
----

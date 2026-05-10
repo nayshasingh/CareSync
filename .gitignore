@@ -5,4 +5,4 @@ node_modules/
 dist/
 target/
 logs/
-INTERVIEW_PREP.md
+*.local.md
