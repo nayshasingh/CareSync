@@ -1,8 +1,8 @@
-# Smart Healthcare Appointment System
+# CareSync — Secure Appointment Scheduling & Doctor Availability Platform
 
 ## Overview
 
-The **Smart Healthcare Appointment System** is a full-stack application built to simplify and optimize healthcare appointment management. The backend is built with Spring Boot and focuses on secure user access, appointment scheduling, doctor availability, consultation records, audit logging, notification traceability, and production-style local setup using Docker and Flyway migrations.
+**CareSync** is a full-stack application built to simplify and optimize healthcare appointment management. The backend is built with Spring Boot and focuses on secure user access, appointment scheduling, doctor availability, consultation records, audit logging, notification traceability, and production-style local setup using Docker and Flyway migrations.
 
 ## Contents
 
